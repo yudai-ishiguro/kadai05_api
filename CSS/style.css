@@ -1,0 +1,43 @@
+h1 {padding:0; margin:0; font-size:15px; color:blue;}
+h2 {padding:10px; margin:0; font-size:15px; color:blue;}
+#myMap {position:relative; width:100%; height:400px;}
+.Infobox{
+    border: 2px solid black;
+    background-color: white;
+    /* padding: 10px; */
+    font-size: 15px;
+    max-width: 300px;
+    height: auto;
+    overflow: visible;
+}
+.remove:hover{background:aquamarine;}
+#output{overflow: auto; height: 300px}
+.msg:nth-child(odd){
+    margin-right: auto;
+    padding: 10px;
+    border: 1px solid gray;
+    width: 200px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background: #fff;}
+.msg:nth-child(even){
+    margin-left: auto;
+    width: 200px;
+    margin-top: 10px;
+    border: 1px solid gray;
+    padding: 10px;
+    border-radius: 6px;
+    background: pink}
+.weather-report {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+}
+.weather-report img {
+    margin-right: 10px;
+}
+.weather-date, .weather-main, .weather-temp, .weather-wind {
+    margin-right: 10px;
+}

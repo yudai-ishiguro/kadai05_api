@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>慶良間ダイビングポイント</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>座間味島ダイビングマップ</h1>
+    <div id="myMap"> </div>
+    <div>
+        <ul>
+            <li><a href="#" class="map-link" data-pin-id="point1">座間味灯台下</a></li>
+            <li><a href="#" class="map-link" data-pin-id="point2">ドラゴンレディ</a></li>
+        </ul>
+    </div>
+    <div id="city-name"></div>
+    <div id="weather"></div>
+    <div id="error-message" style="color: red;"></div>
+    <iframe width="100%" height="450" src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=11&overlay=wind&product=ecmwf&level=surface&lat=26.19&lon=127.325" frameborder="0"></iframe>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+    <script src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=' async defer></script>
+
+    <script>
+        function GetMap(){
+            const map = new Microsoft.Maps.Map('#myMap',{
+                center: new Microsoft.Maps.Location(26.20612162010508, 127.33330892032716),
+                mapTypeId: Microsoft.Maps.MapTypeId.road,
+                zoom:12
+            });
+
+            const points = [
+            {
+                id: 'point1',
+                location:new Microsoft.Maps.Location(26.225417199160493,127.33269832356302),
+                title: '座間味灯台下',
+                description: `<div>
+                            <img src="img/toudaishita.jpg" alt="間味灯台下" style="width:100%; height:auto;">
+                            <p>六番崎（牛の島灯台下）は座間味島の東側に面したポイントです。地形とサンゴ礁、ソフトコーラルが特徴のオールマイティーなポイントです。<a href="https://liberte.jp/naha/scubadiving/okinawadiving/keramadiving/keramadivingpoint/zamamidivingpoint/rokubanzaki" target="_blank">More Info</a></p>
+                            </div>`,
+                icon: 'img/flag.png',
+                iconSize: new Microsoft.Maps.Size(20, 16),
+                actions:[
+                 {label: 'Watch Youtube', url:'https://www.youtube.com/watch?v=57lwYnb7sUA'},
+                 {label: 'See Dive Logs', url:'log_point1.html'}
+                ]
+            },
+            {
+                id: 'point2',
+                location:new Microsoft.Maps.Location(26.22815615706066, 127.33075842767659),
+                title: 'ドラゴンレディ',
+                description: `<div>
+                            <img src="img/dragonlady.jpg" alt="間味灯台下" style="width:100%; height:auto;">
+                            <p>ドラゴンレディーは座間味島の南側に面したポイントで北風が吹く冬のポイントです。真っ白な砂地と根に沸くスカシテンジクダイ、沖の２０ｍにはドラゴンレディーの残骸が残っている。<a href="https://liberte.jp/naha/scubadiving/okinawadiving/keramadiving/keramadivingpoint/zamamidivingpoint/doragonlady" target="_blank">More Info</a></p>
+                            </div>`,
+                icon: 'img/flag.png',
+                iconSize: new Microsoft.Maps.Size(20, 16),
+                actions:[
+                 {label: 'Watch Youtube', url:'https://www.youtube.com/watch?v=SIFWeV1PZo0'},
+                 {label: 'See Dive Logs', url:'log_point2.html'}
+                ]
+            },
+            ];
+
+            let infobox;
+            const pins = {};
+            
+            points.forEach(function(point){
+                let pin = new Microsoft.Maps.Pushpin(point.location,{
+                    icon: point.icon,
+                    iconSize: point.iconSize
+            });
+
+            pins[point.id] = pin;
+            map.entities.push(pin);      
+            
+            Microsoft.Maps.Events.addHandler(pin, 'click', function(){
+
+                if(infobox) {
+                    infobox.setMap(null);
+                }
+
+                infobox = new Microsoft.Maps.Infobox(point.location,{
+                title: point.title,
+                description: point.description,
+                visible: true,
+                offset: new Microsoft.Maps.Point(0, 20),
+                actions: point.actions.map(function(action){
+                    return {
+                        label: action.label,
+                        eventHandler: function(){
+                            window.open(action.url,'_blank');
+                        }
+                    };
+                })
+            });
+            infobox.setMap(map);
+            });
+        });
+
+        // リンククリックイベント
+        document.querySelectorAll('.map-link').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const id = this.dataset.pinId;
+                const pin = pins[id];
+
+                if (pin) {
+                    map.setView({ center: pin.getLocation(), zoom: 14 });
+                        
+                    // ピンのInfoboxを表示
+                    if (infobox) {
+                        infobox.setMap(null);
+                    }
+                    const point = points.find(p => p.id === id);
+                    infobox = new Microsoft.Maps.Infobox(point.location, {
+                        title: point.title,
+                        description: point.description,
+                        visible: true,
+                        offset: new Microsoft.Maps.Point(0, 20),
+                        actions: point.actions.map(function(action) {
+                            return {
+                                label: action.label,
+                                eventHandler: function() {
+                                    window.open(action.url, '_blank');
+                                    }
+                                };
+                            })
+                        });
+                     infobox.setMap(map);
+                    }
+                });
+            });
+        }
+    </script>
+
+<script>
+    $(function() {
+        var API_KEY = '';  // Replace with your actual API key
+        var city = 'Zamami';
+        var url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',jp&units=metric&APPID=' + API_KEY;
+        
+        $.ajax({
+            url: url,
+            dataType: "json",
+            type: 'GET',
+        })
+        .done(function(data) {
+            var insertHTML = "";
+            var cityName = '<h2>' + data.city.name + '</h2>';
+            $('#city-name').html(cityName);
+
+            // 5日間の予報を表示する
+            var forecastDays = getDailyForecasts(data.list);
+            for (var i = 0; i < forecastDays.length; i++) {
+                insertHTML += buildHTML(forecastDays[i]);
+            }
+            $('#weather').html(insertHTML);
+        })
+        .fail(function() {
+            $('#error-message').text("データの取得に失敗しました。");
+        });
+    });
+
+    // 毎日の予報を取得する
+    function getDailyForecasts(list) {
+        var dailyForecasts = [];
+        var targetHour = "00:00:00";  // 各日00:00のデータを使用
+
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+
+            // 00:00のデータを選択
+            if (item.dt_txt.includes(targetHour)) {
+                dailyForecasts.push(item);
+            }
+
+            // 5日分のデータが揃ったら終了
+            if (dailyForecasts.length === 5) {
+                break;
+            }
+        }
+
+        // 取得したデータの内容をコンソールに表示
+        console.dir(dailyForecasts);
+
+        return dailyForecasts;
+    }
+
+    // 天気情報の英語を日本語に変換する
+    function getDescription(disc) {
+        switch (disc.toLowerCase()) {
+            case "clear sky":
+                return "快晴";
+            case "few clouds":
+                return "くもり（雲少なめ）";
+            case "scattered clouds":
+                return "くもり（雲ふつう）";
+            case "broken clouds":
+            case "overcast clouds":
+                return "くもり（雲多め）";
+            case "light intensity shower rain":
+                return "小雨のにわか雨";
+            case "shower rain":
+                return "にわか雨";
+            case "heavy intensity shower rain":
+                return "大雨のにわか雨";
+            case "light rain":
+                return "小雨";
+            case "moderate rain":
+                return "雨";
+            case "heavy intensity rain":
+                return "大雨";
+            case "very heavy rain":
+                return "激しい大雨";
+            case "rain":
+                return "雨";
+            case "thunderstorm":
+                return "雷雨";
+            case "snow":
+                return "雪";
+            case "mist":
+                return "靄";
+            case "tornado":
+                return "強風";
+            default:
+                return disc;
+        }
+    }
+
+    function buildHTML(data) {
+        var Week = new Array("（日）","（月）","（火）","（水）","（木）","（金）","（土）");
+        var date = new Date (data.dt_txt);
+        date.setHours(date.getHours() + 9);  // 日本時間に変換
+        var month = date.getMonth() + 1;
+        var day = month + "月" + date.getDate() + "日" + Week[date.getDay()] + date.getHours() + "：00";
+        var icon = data.weather[0].icon;
+
+        // 風向きの変換
+        var windDirection = getWindDirection(data.wind.deg);
+        var windSpeed = data.wind.speed;
+
+        // 天気情報の日本語変換
+        var weatherDescription = getDescription(data.weather[0].description);
+
+        var html = `
+            <div class="weather-report">
+                <img src="https://openweathermap.org/img/w/${icon}.png">
+                <div class="weather-date">${day}</div>
+                <div class="weather-main">${weatherDescription}</div>
+                <div class="weather-temp">${Math.round(data.main.temp)}℃</div>
+                <div class="weather-wind">風速: ${windSpeed} m/s, 風向: ${windDirection}</div>
+            </div>
+        `;
+        return html;
+    }
+
+    function getWindDirection(degree) {
+        var directions = ['北', '北北東', '北東', '東北東', '東', '東南東', '南東', '南南東', '南', '南南西', '南西', '西南西', '西', '西北西', '北西', '北北西', '北'];
+        var index = Math.round(degree / 22.5) % 16;
+        return directions[index];
+    }
+</script> 
+
+</body>
+</html>
